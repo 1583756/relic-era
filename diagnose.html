@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>诊断 - 遗物纪元</title>
+    <style>
+        body { font-family: monospace; background: #1a1a1a; color: #0f0; padding: 20px; }
+        .ok { color: #0f0; }
+        .error { color: #f00; }
+        pre { background: #000; padding: 10px; border: 1px solid #333; }
+    </style>
+</head>
+<body>
+    <h1>游戏诊断工具</h1>
+    <div id="results"></div>
+    
+    <script>
+        const results = document.getElementById('results');
+        function log(msg, ok = true) {
+            const div = document.createElement('div');
+            div.className = ok ? 'ok' : 'error';
+            div.textContent = (ok ? '✓ ' : '✗ ') + msg;
+            results.appendChild(div);
+        }
+        
+        async function check() {
+            log('开始诊断...');
+            
+            // 检查 game.js 是否存在
+            try {
+                const response = await fetch('game.js');
+                if (response.ok) {
+                    const text = await response.text();
+                    log(`game.js 加载成功 (${text.length} 字节)`);
+                    
+                    // 检查关键函数
+                    if (text.includes('updateUI()')) {
+                        log('找到 updateUI() 方法');
+                    } else {
+                        log('未找到 updateUI() 方法！', false);
+                    }
+                    
+                    if (text.includes('goldEl')) {
+                        log('找到 goldEl 安全检查');
+                    } else {
+                        log('未找到 goldEl 安全检查', false);
+                    }
+                    
+                    if (text.includes('class GameState')) {
+                        log('找到 GameState 类');
+                    }
+                    
+                    if (text.includes('class Game')) {
+                        log('找到 Game 类');
+                    }
+                    
+                } else {
+                    log('game.js 加载失败: ' + response.status, false);
+                }
+            } catch (e) {
+                log('game.js 加载异常: ' + e.message, false);
+            }
+            
+            // 检查 index.html
+            try {
+                const response = await fetch('index.html');
+                if (response.ok) {
+                    const text = await response.text();
+                    log(`index.html 加载成功 (${text.length} 字节)`);
+                    
+                    if (text.includes('id="hp-value"')) {
+                        log('找到 hp-value 元素');
+                    }
+                    if (text.includes('id="san-value"')) {
+                        log('找到 san-value 元素');
+                    }
+                    if (text.includes('id="talent-value"')) {
+                        log('找到 talent-value 元素');
+                    }
+                }
+            } catch (e) {
+                log('index.html 加载异常: ' + e.message, false);
+            }
+            
+            log('');
+            log('诊断完成。如果所有检查都通过，请尝试：');
+            log('1. 强制刷新页面 (Ctrl+Shift+R 或 Cmd+Shift+R)');
+            log('2. 清除浏览器缓存');
+            log('3. 使用无痕模式打开');
+            
+            // 尝试加载游戏
+            log('');
+            log('尝试加载游戏脚本...');
+            try {
+                const script = document.createElement('script');
+                script.src = 'game.js?t=' + Date.now();
+                script.onload = () => {
+                    log('game.js 脚本加载成功');
+                    if (window.game) {
+                        log('game 对象已创建');
+                        if (window.game.state) {
+                            log('game.state 已创建');
+                            if (typeof window.game.state.updateUI === 'function') {
+                                log('game.state.updateUI 是函数 ✓✓✓');
+                            } else {
+                                log('game.state.updateUI 不是函数！', false);
+                            }
+                        }
+                    } else {
+                        log('game 对象未创建', false);
+                    }
+                };
+                script.onerror = (e) => {
+                    log('game.js 脚本加载失败', false);
+                };
+                document.body.appendChild(script);
+            } catch (e) {
+                log('脚本加载异常: ' + e.message, false);
+            }
+        }
+        
+        check();
+    </script>
+</body>
+</html>
