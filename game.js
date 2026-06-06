@@ -258,6 +258,15 @@ class GameState {
     this.deathCount = 0;
   }
 
+  // 更新UI显示
+  updateUI() {
+    document.getElementById('hp-value').textContent = `${this.hp}/${this.maxHp}`;
+    document.getElementById('san-value').textContent = `${this.san}/${this.maxSan}`;
+    document.getElementById('talent-value').textContent = this.talent ? this.talent.name : '未觉醒';
+    const goldEl = document.getElementById('gold-value');
+    if (goldEl) goldEl.textContent = this.gold;
+  }
+
   // 应用天赋效果
   applyTalent(talent) {
     this.talent = talent;
