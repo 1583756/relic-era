@@ -923,10 +923,17 @@ class Game {
   }
 
   init() {
-    document.getElementById('start-btn').addEventListener('click', () => this.startGame());
+    const startBtn = document.getElementById('start-btn');
+    if (startBtn) {
+      startBtn.addEventListener('click', () => this.startGame());
+    } else {
+      console.warn('start-btn 元素不存在');
+    }
+    
     document.querySelectorAll('.combat-btn').forEach(btn => {
       btn.addEventListener('click', (e) => this.handleCombatAction(e.target.dataset.action));
     });
+    
     // 道具按钮 (预留)
     document.addEventListener('click', (e) => {
       if (e.target.dataset.itemAction) {
@@ -1474,4 +1481,13 @@ Object.defineProperty(Game.prototype, 'talent', {
 });
 
 // 启动
-const game = new Game();
+window.addEventListener('DOMContentLoaded', () => {
+  try {
+    const game = new Game();
+    window.game = game;
+  } catch(e) {
+    console.error('游戏初始化失败:', e);
+    const el = document.getElementById('story-text');
+    if (el) el.innerHTML = '<p style="color:#ff4444">游戏初始化失败: ' + e.message + '</p>';
+  }
+});
