@@ -918,21 +918,31 @@ class Game {
     document.querySelectorAll('.combat-btn').forEach(btn => {
       btn.addEventListener('click', (e) => this.handleCombatAction(e.target.dataset.action));
     });
-    // 道具按钮
+    // 道具按钮 (预留)
     document.addEventListener('click', (e) => {
       if (e.target.dataset.itemAction) {
-        this.handleItemAction(e.target.dataset.itemAction, e.target.dataset.item);
+        if (typeof this.handleItemAction === 'function') {
+          this.handleItemAction(e.target.dataset.itemAction, e.target.dataset.item);
+        }
       }
     });
   }
 
   startGame() {
-    document.getElementById('start-screen').classList.add('hidden');
-    this.state.updateUI();
-    this.loadScene('prologue_start');
+    try {
+      document.getElementById('start-screen').classList.add('hidden');
+      document.getElementById('combat-ui').classList.add('hidden');
+      document.getElementById('main-content').style.display = 'flex';
+      this.state.updateUI();
+      this.loadScene('prologue_start');
+    } catch(e) {
+      console.error('startGame error:', e);
+      document.getElementById('story-text').innerHTML = '<span style="color:red">游戏加载出错: ' + e.message + '</span>';
+    }
   }
 
   loadScene(sceneId) {
+    try {
     if (sceneId === 'restart') { location.reload(); return; }
     
     const scene = SCENES[sceneId];
@@ -941,7 +951,8 @@ class Game {
     // 隐藏战斗UI
     if (!this.inCombat) {
       document.getElementById('combat-ui').classList.add('hidden');
-      document.getElementById('main-content').style.display = '';
+      document.getElementById('main-content').style.display = 'flex';
+      document.getElementById('main-content').style.flexDirection = 'column';
     }
 
     // 显示文本
@@ -964,6 +975,11 @@ class Game {
 
     if (!this.inCombat) {
       this.showChoices(choices);
+    }
+    } catch(err) {
+      console.error('loadScene error:', sceneId, err);
+      const storyEl = document.getElementById('story-text');
+      storyEl.innerHTML += '<p style="color:#ff4444">[场景加载出错: ' + err.message + ']</p>';
     }
   }
 
