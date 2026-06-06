@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>遗物纪元 - 文字冒险原型</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- 顶部状态栏 -->
+        <div id="status-bar">
+            <div class="status-group">
+                <div class="stat">
+                    <span class="stat-label">生命值:</span>
+                    <span id="hp-value" class="stat-value">100/100</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">理智值:</span>
+                    <span id="san-value" class="stat-value">100/100</span>
+                </div>
+            </div>
+            <div class="status-group">
+                <div class="stat">
+                    <span class="stat-label">天赋:</span>
+                    <span id="talent-value" class="stat-value">未觉醒</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <div id="main-content">
+            <div id="story-text"></div>
+            <div id="choices-container"></div>
+        </div>
+
+        <!-- 战斗界面（默认隐藏） -->
+        <div id="combat-ui" class="hidden">
+            <div id="enemy-info">
+                <h3 id="enemy-name">敌人名称</h3>
+                <div class="enemy-stats">
+                    <span>生命值: <span id="enemy-hp">0/0</span></span>
+                    <span>恐怖等级: <span id="enemy-horror">0</span></span>
+                </div>
+            </div>
+            <div id="combat-log"></div>
+            <div id="combat-actions">
+                <button class="combat-btn" data-action="attack">普通攻击</button>
+                <button class="combat-btn" data-action="defend">防御</button>
+                <button class="combat-btn" data-action="skill">技能</button>
+                <button class="combat-btn" data-action="flee">逃跑</button>
+            </div>
+        </div>
+
+        <!-- 开始界面 -->
+        <div id="start-screen">
+            <h1>遗物纪元</h1>
+            <p class="subtitle">Relic Era</p>
+            <p class="tagline">"当最后一缕理智之光熄灭，你终于看见了真相——它一直都在雾中。"</p>
+            <button id="start-btn">开始游戏</button>
+            <p class="version">原型版本 v0.1</p>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
