@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>简单测试</title>
+    <style>
+        body { background: #000; color: #0f0; font-family: monospace; padding: 20px; }
+        .ok { color: #0f0; }
+        .err { color: #f00; font-weight: bold; }
+        .info { color: #0af; }
+    </style>
+</head>
+<body>
+    <h1>遗物纪元 - 简单测试</h1>
+    <div id="log"></div>
+    
+    <script>
+        const log = document.getElementById('log');
+        function say(msg, type='info') {
+            const p = document.createElement('p');
+            p.className = type;
+            p.textContent = msg;
+            log.appendChild(p);
+            console.log(msg);
+        }
+        
+        say('开始测试...', 'info');
+        
+        // 测试1: 检查HTML元素
+        say('--- 检查HTML元素 ---', 'info');
+        const hpEl = document.getElementById('hp-value');
+        const sanEl = document.getElementById('san-value');
+        const talentEl = document.getElementById('talent-value');
+        const storyEl = document.getElementById('story-text');
+        
+        say('hp-value: ' + (hpEl ? '✓' : '✗ 不存在'), hpEl ? 'ok' : 'err');
+        say('san-value: ' + (sanEl ? '✓' : '✗ 不存在'), sanEl ? 'ok' : 'err');
+        say('talent-value: ' + (talentEl ? '✓' : '✗ 不存在'), talentEl ? 'ok' : 'err');
+        say('story-text: ' + (storyEl ? '✓' : '✗ 不存在'), storyEl ? 'ok' : 'err');
+        
+        // 测试2: 加载game.js
+        say('', 'info');
+        say('--- 加载game.js ---', 'info');
+        
+        const script = document.createElement('script');
+        script.src = 'game.js';
+        
+        script.onload = function() {
+            say('✓ game.js 加载成功', 'ok');
+            
+            // 测试3: 检查类定义
+            say('', 'info');
+            say('--- 检查类定义 ---', 'info');
+            
+            if (typeof GameState === 'undefined') {
+                say('✗ GameState 未定义', 'err');
+            } else {
+                say('✓ GameState 已定义', 'ok');
+                
+                // 测试4: 创建GameState
+                try {
+                    const state = new GameState();
+                    say('✓ GameState 创建成功', 'ok');
+                    
+                    // 测试5: 检查updateUI
+                    if (typeof state.updateUI === 'function') {
+                        say('✓ updateUI 是函数', 'ok');
+                    } else {
+                        say('✗ updateUI 不是函数: ' + typeof state.updateUI, 'err');
+                    }
+                    
+                    // 测试6: 调用updateUI
+                    try {
+                        state.updateUI();
+                        say('✓ updateUI 调用成功', 'ok');
+                    } catch(e) {
+                        say('✗ updateUI 调用失败: ' + e.message, 'err');
+                    }
+                } catch(e) {
+                    say('✗ GameState 创建失败: ' + e.message, 'err');
+                }
+            }
+            
+            if (typeof Game === 'undefined') {
+                say('✗ Game 未定义', 'err');
+            } else {
+                say('✓ Game 已定义', 'ok');
+                
+                // 测试7: 创建Game
+                try {
+                    const game = new Game();
+                    say('✓ Game 创建成功', 'ok');
+                    window.game = game;
+                    
+                    // 测试8: 调用startGame
+                    try {
+                        game.startGame();
+                        say('✓ startGame 调用成功', 'ok');
+                        say('当前场景: ' + game.state.currentScene, 'ok');
+                    } catch(e) {
+                        say('✗ startGame 调用失败: ' + e.message, 'err');
+                        say('堆栈: ' + e.stack, 'err');
+                    }
+                } catch(e) {
+                    say('✗ Game 创建失败: ' + e.message, 'err');
+                    say('堆栈: ' + e.stack, 'err');
+                }
+            }
+            
+            say('', 'info');
+            say('--- 测试完成 ---', 'info');
+        };
+        
+        script.onerror = function(e) {
+            say('✗ game.js 加载失败', 'err');
+        };
+        
+        document.head.appendChild(script);
+    </script>
+</body>
+</html>
