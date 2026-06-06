@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>调试 - 遗物纪元</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #debug-log {
+            background: #000;
+            color: #0f0;
+            padding: 20px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 600px;
+            overflow-y: auto;
+            border: 2px solid #333;
+        }
+        .error { color: #f00; }
+        .success { color: #0f0; }
+        .info { color: #0af; }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="status-bar"></div>
+        <div id="main-content">
+            <div id="story-text"></div>
+            <div id="choices-container"></div>
+        </div>
+        <div id="combat-ui" class="hidden"></div>
+        <div id="start-screen">
+            <h1>遗物纪元</h1>
+            <p>调试模式</p>
+        </div>
+    </div>
+    
+    <div style="margin-top: 20px;">
+        <h2 style="color: #fff;">调试日志：</h2>
+        <div id="debug-log"></div>
+    </div>
+
+    <script>
+        const logDiv = document.getElementById('debug-log');
+        
+        function log(msg, type = 'info') {
+            const line = document.createElement('div');
+            line.className = type;
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            logDiv.appendChild(line);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(msg);
+        }
+
+        // 捕获所有错误
+        window.onerror = function(msg, url, line, col, error) {
+            log(`错误: ${msg}`, 'error');
+            log(`位置: ${url}:${line}:${col}`, 'error');
+            log(`堆栈: ${error?.stack || '无'}`, 'error');
+            return true;
+        };
+
+        window.addEventListener('unhandledrejection', function(event) {
+            log(`Promise 错误: ${event.reason}`, 'error');
+            if (event.reason?.stack) {
+                log(`堆栈: ${event.reason.stack}`, 'error');
+            }
+        });
+
+        log('开始加载游戏脚本...');
+
+        // 加载 game.js
+        const script = document.createElement('script');
+        script.src = 'game.js?t=' + Date.now();
+        
+        script.onload = function() {
+            log('✓ game.js 加载成功', 'success');
+            
+            // 检查全局变量
+            if (typeof GameState !== 'undefined') {
+                log('✓ GameState 类已定义', 'success');
+            } else {
+                log('✗ GameState 类未定义', 'error');
+            }
+            
+            if (typeof Game !== 'undefined') {
+                log('✓ Game 类已定义', 'success');
+            } else {
+                log('✗ Game 类未定义', 'error');
+            }
+            
+            if (typeof game !== 'undefined') {
+                log('✓ game 对象已创建', 'success');
+                log(`game.state: ${game.state ? '存在' : '不存在'}`, game.state ? 'success' : 'error');
+                if (game.state) {
+                    log(`game.state.updateUI: ${typeof game.state.updateUI}`, typeof game.state.updateUI === 'function' ? 'success' : 'error');
+                }
+            } else {
+                log('✗ game 对象未创建', 'error');
+                log('尝试手动创建 Game 对象...', 'info');
+                
+                try {
+                    const testGame = new Game();
+                    log('✓ 手动创建成功', 'success');
+                    window.game = testGame;
+                } catch (e) {
+                    log(`✗ 手动创建失败: ${e.message}`, 'error');
+                    log(`堆栈: ${e.stack}`, 'error');
+                }
+            }
+            
+            // 检查 HTML 元素
+            const elements = ['hp-value', 'san-value', 'talent-value', 'story-text', 'choices-container', 'combat-ui', 'start-screen'];
+            elements.forEach(id => {
+                const el = document.getElementById(id);
+                log(`${id}: ${el ? '存在' : '不存在'}`, el ? 'success' : 'error');
+            });
+            
+        };
+        
+        script.onerror = function(e) {
+            log('✗ game.js 加载失败', 'error');
+            log(`事件: ${JSON.stringify(e)}`, 'error');
+        };
+        
+        document.head.appendChild(script);
+    </script>
+</body>
+</html>
